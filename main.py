@@ -180,6 +180,7 @@ class LIST_NODE_HEAD:
         sys.stdout.write(".")
         for page_id in range(1,max_page_id+1):
             sys.stdout.write(".")
+            sys.stdout.flush()
             html_path = "https://hk.auctions.yahoo.com/search/?acu=1&cid=0&clv=0&kw=%s&maxp=%d&minp=%d&p=%s&pg=%d&refine=con_new" % (asc_str, high_price, low_price, asc_str, page_id)
             response = urllib2.urlopen(html_path)
             html = response.read()
@@ -189,7 +190,7 @@ class LIST_NODE_HEAD:
             for (item_name, item_price) in zip(item_name_lst,item_price_lst):
                 item_id = item_id_str2int(item_name.string)
                 if item_id > 0:
-                    if type(item_price.string) is None : 
+                    if item_price.string is None : 
                         print "Network error..."
                     else :
                         price = get_str_float_value(item_price.string)
