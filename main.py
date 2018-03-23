@@ -99,9 +99,10 @@ class LIST_NODE:
 
 class LIST_NODE_HEAD:
     'list node'
-    def __init__(self, name):
+    def __init__(self, name, exchange = 1):
         self.list = []
         self.name = name
+        self.exchange = exchange
     def insert_node(self, item):
         for node in self.list:
             if(node.is_same_id(item.id)):
@@ -136,6 +137,15 @@ class LIST_NODE_HEAD:
             if(node.id == id):
                 print "%d\t%d\t%d\t%.1f\t\t%.1f\t\t%.1f\t\t%.1f" % (node.id, len(node.price), node.sell_cnt, node.price[0], node.price[-1], node.get_price_avg(), node.get_price_mid()) 
                 break  
+    def print_one_mid(self, id):
+        for node in self.list :
+            if(node.id == id):
+                return node.get_price_mid()
+    def print_one_sell(self, id):
+        for node in self.list :
+            if(node.id == id):
+                return node.sell_cnt
+        return 0        
     def xy_run(self):
         print_wait_dot()
         key_spm_id = get_spm_id(search_keyword)
@@ -205,6 +215,20 @@ class LIST_NODE_HEAD:
                         self.insert_node(item)
         self.sort_by_sell_number()
         sys.stdout.write("\n")
+    def cmp_analysis(self, cmp_lst):
+        print self.name + " Info :"
+        print("id\tcounts\tprice\tc-cnt\tc-p(hk)\tc-p(rmb)\tprofit\tprofit_pct")
+        for node in self.list:
+            cmp_mid = cmp_lst.print_one_mid(node.id)
+            self_mid = node.get_price_mid() 
+            if cmp_mid > 0:
+                cmp_sell = cmp_lst.print_one_sell(node.id)
+                cmp_ex_mid = cmp_mid * cmp_lst.exchange
+                profit = self_mid - cmp_ex_mid
+                profit_pct = float(profit/float(cmp_mid));
+                print "%d\t%d\t%.1f\t%d\t%.1f\t%.1f\t%.1f\t%.3f" % (node.id, node.sell_cnt, cmp_mid, cmp_sell, self_mid, cmp_ex_mid, profit, profit_pct)
+            else :
+                print "%d\t%d\t%.1f\t*\t*\t*\t*\t*" % (node.id, node.sell_cnt, self_mid)
 
 def show_cmd():
     print "r : run(1:xy, 2:tb 3:hk)"
@@ -218,7 +242,7 @@ show_cmd()
 
 xy_list_head = LIST_NODE_HEAD("Xianyu")
 tb_list_head = LIST_NODE_HEAD("Taobao")
-hk_list_head = LIST_NODE_HEAD("HK")
+hk_list_head = LIST_NODE_HEAD("HK", exchange = hk_exchange)
 
 while 1 :
     cmd = sys.stdin.readline()
@@ -268,7 +292,8 @@ while 1 :
             tb_list_head.print_one_info(int(cmd[2:]))
             hk_list_head.print_one_info(int(cmd[2:]))
     elif(cmd[0] == 'a') :
-            
+            xy_list_head.cmp_analysis(hk_list_head)
+            tb_list_head.cmp_analysis(hk_list_head)
     else :
         show_cmd()
 
