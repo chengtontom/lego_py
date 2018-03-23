@@ -217,7 +217,7 @@ class LIST_NODE_HEAD:
         sys.stdout.write("\n")
     def cmp_analysis(self, cmp_lst):
         print self.name + " Info :"
-        print("id\tcounts\tprice\tc-cnt\tc-p(hk)\tc-p(rmb)\tprofit\tprofit_pct")
+        print("id\tcounts\tprice\tc-cnt\tc-p(hk)\tc-p(c)\tprofit\tprofit_pct")
         for node in self.list:
             cmp_mid = cmp_lst.print_one_mid(node.id)
             self_mid = node.get_price_mid() 
