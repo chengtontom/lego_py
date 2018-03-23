@@ -7,7 +7,7 @@ import types
 
 from bs4 import BeautifulSoup
 
-max_page_id = 2
+max_page_id = 20
 html_parse = "&q=%C0%D6%B8%DF&ist=0"
 
 search_keyword = "乐高"
