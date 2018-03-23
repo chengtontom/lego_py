@@ -3,9 +3,11 @@
 import urllib2
 import re
 import sys
+import types
+
 from bs4 import BeautifulSoup
 
-max_page_id = 20
+max_page_id = 2
 html_parse = "&q=%C0%D6%B8%DF&ist=0"
 
 search_keyword = "乐高"
@@ -179,7 +181,6 @@ class LIST_NODE_HEAD:
         for page_id in range(1,max_page_id+1):
             sys.stdout.write(".")
             html_path = "https://hk.auctions.yahoo.com/search/?acu=1&cid=0&clv=0&kw=%s&maxp=%d&minp=%d&p=%s&pg=%d&refine=con_new" % (asc_str, high_price, low_price, asc_str, page_id)
-            print html_path
             response = urllib2.urlopen(html_path)
             html = response.read()
             soup = BeautifulSoup(html, 'html.parser')
@@ -188,7 +189,9 @@ class LIST_NODE_HEAD:
             for (item_name, item_price) in zip(item_name_lst,item_price_lst):
                 item_id = item_id_str2int(item_name.string)
                 if item_id > 0:
-                    if len(item_price.string) > 0:
+                    if type(item_price.string) is None : 
+                        print "Network error..."
+                    else :
                         price = get_str_float_value(item_price.string)
                         item = ITEM(item_id, price)
                         self.insert_node(item)
@@ -245,12 +248,13 @@ while 1 :
             hk_list_head.hk_run()
             hk_list_head.print_info()
     elif(cmd[0] == 'g') :
-        item_id = int(cmd[2:])
-        if item_id == 0 :
+        item_id = 0
+        if (len(cmd) <4) or item_id == 0 :
             tb_list_head.print_info()
             xy_list_head.print_info()
             hk_list_head.print_info()
         else :    
+            item_id = int(cmd[2:])
             xy_list_head.print_one_info(int(cmd[2:]))
             tb_list_head.print_one_info(int(cmd[2:]))
             hk_list_head.print_one_info(int(cmd[2:]))
