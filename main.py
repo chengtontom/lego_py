@@ -12,6 +12,7 @@ html_parse = "&q=%C0%D6%B8%DF&ist=0"
 
 search_keyword = "乐高"
 traditional_search_keyword = "樂高"
+hk_exchange = 0.81
 low_price = 500
 high_price = 15000
 
@@ -53,7 +54,10 @@ def get_str_int_value(str):
     result = pattern.findall(str)
     return int(result[0])
 
-
+def print_wait_dot():
+    sys.stdout.write(".")
+    sys.stdout.flush()
+    
 class ITEM:
     'item'
     def __init__(self, id, price, sell_cnt = 1):
@@ -133,8 +137,10 @@ class LIST_NODE_HEAD:
                 print "%d\t%d\t%d\t%.1f\t\t%.1f\t\t%.1f\t\t%.1f" % (node.id, len(node.price), node.sell_cnt, node.price[0], node.price[-1], node.get_price_avg(), node.get_price_mid()) 
                 break  
     def xy_run(self):
+        print_wait_dot()
         key_spm_id = get_spm_id(search_keyword)
         for page_id in range(1,max_page_id+1):
+            print_wait_dot()
             html_path = "https://s.2.taobao.com/list/list.htm?spm=%s&st_edtime=1&start=%d&end=%d&page=%d&%s" % (key_spm_id, low_price, high_price, page_id, html_parse)
             response = urllib2.urlopen(html_path)
             html = response.read()
@@ -147,8 +153,10 @@ class LIST_NODE_HEAD:
                     self.insert_node(item)
         self.sort_by_sell_number()
     def tb_run(self):
+        print_wait_dot()
         asc_str = get_chn_2_asc_str(search_keyword)
         for page_id in range(0,max_page_id):
+            print_wait_dot()
             html_path = "https://s.taobao.com/search?data-key=s&data-value=%d&ajax=true&_ksTS=1521788061338_2677&callback=jsonp2678&q=%s&imgfile=&js=1&stats_click=search_radio_all:1&initiative_id=staobaoz_20180323&ie=utf8&style=list&sort=sale-desc&filter=reserve_price[%s,%d]&bcoffset=0&p4ppushleft=,44&s=44" % (page_id*44, asc_str, low_price, high_price)
             response = urllib2.urlopen(html_path)
             html = response.read()
@@ -177,10 +185,9 @@ class LIST_NODE_HEAD:
         self.sort_by_sell_number()
     def hk_run(self):
         asc_str = get_chn_2_asc_str(traditional_search_keyword)
-        sys.stdout.write(".")
+        print_wait_dot()
         for page_id in range(1,max_page_id+1):
-            sys.stdout.write(".")
-            sys.stdout.flush()
+            print_wait_dot()
             html_path = "https://hk.auctions.yahoo.com/search/?acu=1&cid=0&clv=0&kw=%s&maxp=%d&minp=%d&p=%s&pg=%d&refine=con_new" % (asc_str, high_price, low_price, asc_str, page_id)
             response = urllib2.urlopen(html_path)
             html = response.read()
@@ -204,6 +211,7 @@ def show_cmd():
     print "g : get"
     print "s : set"
     print "d : debug"
+    print "a : analysis"
     print "q : quit"
 
 show_cmd()
@@ -259,6 +267,8 @@ while 1 :
             xy_list_head.print_one_info(int(cmd[2:]))
             tb_list_head.print_one_info(int(cmd[2:]))
             hk_list_head.print_one_info(int(cmd[2:]))
+    elif(cmd[0] == 'a') :
+            
     else :
         show_cmd()
 
