@@ -132,15 +132,17 @@ class LIST_NODE_HEAD:
             print "%d\t%d\t%d\t%.1f\t\t%.1f\t\t%.1f\t\t%.1f" % (node.id, len(node.price), node.sell_cnt, node.price[0], node.price[-1], node.get_price_avg(), node.get_price_mid()) 
     def print_one_info(self, id):
         print self.name + " Info :"
-        print "id\tcounts\thigh-price\tlow-price\tavg-price\tmid-price"
+        print "id\tshops\tcounts\thigh-price\tlow-price\tavg-price\tmid-price"
         for node in self.list :
             if(node.id == id):
                 print "%d\t%d\t%d\t%.1f\t\t%.1f\t\t%.1f\t\t%.1f" % (node.id, len(node.price), node.sell_cnt, node.price[0], node.price[-1], node.get_price_avg(), node.get_price_mid()) 
-                break  
+                return 
+        return 0
     def print_one_mid(self, id):
         for node in self.list :
             if(node.id == id):
                 return node.get_price_mid()
+        return 0
     def print_one_sell(self, id):
         for node in self.list :
             if(node.id == id):
@@ -226,9 +228,27 @@ class LIST_NODE_HEAD:
                 cmp_ex_mid = cmp_mid * cmp_lst.exchange
                 profit = self_mid - cmp_ex_mid
                 profit_pct = float(profit/float(cmp_mid));
-                print "%d\t%d\t%.1f\t%d\t%.1f\t%.1f\t%.1f\t%.3f" % (node.id, node.sell_cnt, cmp_mid, cmp_sell, self_mid, cmp_ex_mid, profit, profit_pct)
+                print "%d\t%d\t%.1f\t%d\t%.1f\t%.1f\t%.1f\t%.3f" % (node.id, node.sell_cnt, self_mid, cmp_sell, cmp_mid, cmp_ex_mid, profit, profit_pct)
             else :
                 print "%d\t%d\t%.1f\t*\t*\t*\t*\t*" % (node.id, node.sell_cnt, self_mid)
+    def cmp_analysis_one(self, cmp_lst, item_id):
+        print self.name + " Info :"
+        print("id\tcounts\tprice\tc-cnt\tc-p(hk)\tc-p(c)\tprofit\tprofit_pct")
+        cmp_mid = cmp_lst.print_one_mid(item_id)
+        self_mid = self.print_one_mid(item_id) 
+        self_sell = self.print_one_sell(item_id)
+        cmp_sell = cmp_lst.print_one_sell(item_id)
+        cmp_ex_mid = cmp_mid * cmp_lst.exchange
+        if cmp_mid > 0 and self_mid > 0:
+            profit = self_mid - cmp_ex_mid
+            profit_pct = float(profit/float(cmp_mid));
+            print "%d\t%d\t%.1f\t%d\t%.1f\t%.1f\t%.1f\t%.3f" % (item_id, self_sell, self_mid, cmp_sell, cmp_mid, cmp_ex_mid, profit, profit_pct)
+        elif self_mid > 0:
+            print "%d\t%d\t%.1f\t*\t*\t*\t*\t*" % (item_id, self_sell, self_mid)
+        elif cmp_mid  > 0:
+            print "%d\t*\t*\t%d\t%.1f\t%.1f\t*\t*" % (item_id, cmp_sell, cmp_mid, cmp_ex_mid)
+        else :
+            print "***"
 
 def show_cmd():
     print "r : run(1:xy, 2:tb 3:hk)"
@@ -281,16 +301,20 @@ while 1 :
             hk_list_head.hk_run()
             hk_list_head.print_info()
     elif(cmd[0] == 'g') :
-        item_id = 0
-        if (len(cmd) <4) or item_id == 0 :
+        if len(cmd) < 4 :
+            item_id = 0
+        else :
+            item_id = int(cmd[2:])
+        if (len(cmd) <4) :
             tb_list_head.print_info()
             xy_list_head.print_info()
             hk_list_head.print_info()
         else :    
-            item_id = int(cmd[2:])
-            xy_list_head.print_one_info(int(cmd[2:]))
-            tb_list_head.print_one_info(int(cmd[2:]))
-            hk_list_head.print_one_info(int(cmd[2:]))
+            xy_list_head.print_one_info(item_id)
+            tb_list_head.print_one_info(item_id)
+            hk_list_head.print_one_info(item_id)
+            xy_list_head.cmp_analysis_one(hk_list_head, item_id)
+            tb_list_head.cmp_analysis_one(hk_list_head, item_id)
     elif(cmd[0] == 'a') :
             xy_list_head.cmp_analysis(hk_list_head)
             tb_list_head.cmp_analysis(hk_list_head)
